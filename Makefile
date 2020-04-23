@@ -12,9 +12,11 @@ OBJ := $(SRC:.c=.o)
 DEMO := demo
 
 ifeq ($(OS), Darwin)
-C_SO_NAME := libljson.dylib
+C_SO_NAME := libljson.so
+INSTALL_FLAG := 
 else
 C_SO_NAME := libljson.so
+INSTALL_FLAG := "-D"
 endif
 
 #################################################################
@@ -24,8 +26,7 @@ endif
 #################################################################
 #
 CFLAGS := -Wall -O3 -flto -g -DFP_RELAX=0 #-DDEBUG
-THE_CFLAGS := $(CFLAGS) -fPIC -Wl,--build-id -MMD -fvisibility=hidden
-
+THE_CFLAGS := $(CFLAGS)  -MMD -fvisibility=hidden -fPIC
 ifeq ($(OS), Linux)
     THE_CFLAGS := $(THE_CFLAGS) -Wl,--build-id
 endif
@@ -36,8 +37,10 @@ endif
 #
 #################################################################
 #
-PREFIX := /usr/local
+
 LUA_VERSION = 5.1
+
+PREFIX := /usr/local
 SO_TARGET_DIR := $(PREFIX)/lib/lua/$(LUA_VERSION)
 LUA_TARGET_DIR := $(PREFIX)/share/lua/$(LUA_VERSION)/
 
@@ -69,5 +72,5 @@ test :
 clean:; rm -f *.o *.so a.out *.d dep.txt demo
 
 install:
-	install -D -m 755 $(C_SO_NAME) $(DESTDIR)/$(SO_TARGET_DIR)/$(C_SO_NAME)
-	install -D -m 664 json_decoder.lua  $(DESTDIR)/$(LUA_TARGET_DIR)/json_decoder.lua
+	install $(INSTALL_FLAG) -m 755 $(C_SO_NAME) $(SO_TARGET_DIR)/$(C_SO_NAME)
+	install $(INSTALL_FLAG) -m 666 json_decoder.lua  $(LUA_TARGET_DIR)/json_decoder.lua
